@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Integration Demo - Complete Payment Gateway Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Razorpay Payment Integration Demo</h1>
+            <p>Complete tutorial with secure backend processing and database management</p>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <div class="container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="products">Products</button>
+                <button class="tab-btn" data-tab="payment-flow">Payment Flow</button>
+                <button class="tab-btn" data-tab="api-docs">API Endpoints</button>
+                <button class="tab-btn" data-tab="database">Database</button>
+                <button class="tab-btn" data-tab="security">Security</button>
+                <button class="tab-btn" data-tab="transactions">Transactions</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <!-- Products Tab -->
+        <section id="products" class="tab-content active">
+            <div class="container">
+                <h2>Available Products & Services</h2>
+                <div class="products-grid">
+                    <div class="product-card" data-product-id="1">
+                        <div class="product-info">
+                            <h3>Premium Web Development Course</h3>
+                            <p>Complete full-stack web development course with projects</p>
+                            <div class="product-price">₹5,000</div>
+                        </div>
+                        <button class="btn btn--primary pay-now-btn" data-amount="500000" data-name="Premium Web Development Course">
+                            Pay Now
+                        </button>
+                    </div>
+
+                    <div class="product-card" data-product-id="2">
+                        <div class="product-info">
+                            <h3>Mobile App Development Bundle</h3>
+                            <p>iOS and Android app development comprehensive guide</p>
+                            <div class="product-price">₹7,500</div>
+                        </div>
+                        <button class="btn btn--primary pay-now-btn" data-amount="750000" data-name="Mobile App Development Bundle">
+                            Pay Now
+                        </button>
+                    </div>
+
+                    <div class="product-card" data-product-id="3">
+                        <div class="product-info">
+                            <h3>Digital Marketing Masterclass</h3>
+                            <p>Complete digital marketing strategy and implementation</p>
+                            <div class="product-price">₹3,000</div>
+                        </div>
+                        <button class="btn btn--primary pay-now-btn" data-amount="300000" data-name="Digital Marketing Masterclass">
+                            Pay Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Flow Tab -->
+        <section id="payment-flow" class="tab-content">
+            <div class="container">
+                <h2>Payment Integration Process</h2>
+                <div class="payment-steps">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Order Creation</h3>
+                            <p>Frontend sends payment request to backend /create-order endpoint</p>
+                            <div class="code-block">
+                                <code>
+POST /create-order
+{
+  "amount": 50000,
+  "currency": "INR",
+  "receipt": "receipt#1"
+}
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Backend Processing</h3>
+                            <p>Server creates order using Razorpay SDK and returns order_id</p>
+                            <div class="code-block">
+                                <code>
+order = client.order.create(data={
+  'amount': 50000,
+  'currency': 'INR', 
+  'receipt': 'receipt#1'
+})
+return order['id']
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Payment Gateway</h3>
+                            <p>Frontend opens Razorpay checkout modal with order details</p>
+                            <div class="code-block">
+                                <code>
+var options = {
+  "key": "rzp_test_key",
+  "amount": "50000",
+  "order_id": "order_EKwxwAgItmmXdp",
+  "handler": function(response) {
+    // Handle payment success
+  }
+};
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Payment Verification</h3>
+                            <p>Server verifies payment signature for security</p>
+                            <div class="code-block">
+                                <code>
+generated_signature = hmac.new(
+  secret.encode(),
+  message.encode(),
+  hashlib.sha256
+).hexdigest()
+
+if generated_signature == signature:
+  # Payment verified
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>Database Storage</h3>
+                            <p>Transaction details saved to database with success status</p>
+                            <div class="code-block">
+                                <code>
+INSERT INTO transactions 
+(payment_id, order_id, amount, status)
+VALUES (?, ?, ?, 'success')
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-payment">
+                    <h3>Demo Payment Process</h3>
+                    <button class="btn btn--secondary" id="demo-payment-btn">Start Demo Payment Flow</button>
+                    <div class="demo-log" id="demo-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Documentation Tab -->
+        <section id="api-docs" class="tab-content">
+            <div class="container">
+                <h2>API Endpoints Documentation</h2>
+                
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/create-order</span>
+                    </div>
+                    <div class="endpoint-description">
+                        <p>Creates a new payment order and returns order_id</p>
+                        
+                        <h4>Request Body</h4>
+                        <div class="code-block">
+                            <code>
+{
+  "amount": 50000,
+  "currency": "INR",
+  "receipt": "receipt#1"
+}
+                            </code>
+                        </div>
+                        
+                        <h4>Response</h4>
+                        <div class="code-block">
+                            <code>
+{
+  "success": true,
+  "order_id": "order_EKwxwAgItmmXdp",
+  "amount": 50000,
+  "currency": "INR"
+}
+                            </code>
+                        </div>
+                        
+                        <h4>Flask Implementation</h4>
+                        <div class="code-block">
+                            <code>
+from flask import Flask, request, jsonify
+import razorpay
+
+app = Flask(__name__)
+client = razorpay.Client(auth=("rzp_test_key", "rzp_test_secret"))
+
+@app.route('/create-order', methods=['POST'])
+def create_order():
+    data = {
+        'amount': request.json['amount'],
+        'currency': 'INR',
+        'receipt': f'receipt#{request.json["receipt"]}'
+    }
+    order = client.order.create(data=data)
+    return jsonify({
+        'success': True,
+        'order_id': order['id'],
+        'amount': order['amount'],
+        'currency': order['currency']
+    })
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/verify-payment</span>
+                    </div>
+                    <div class="endpoint-description">
+                        <p>Verifies payment signature for security</p>
+                        
+                        <h4>Request Body</h4>
+                        <div class="code-block">
+                            <code>
+{
+  "payment_id": "pay_EKwxwBgDtmmXdq",
+  "order_id": "order_EKwxwAgItmmXdp",
+  "signature": "valid_signature_hash"
+}
+                            </code>
+                        </div>
+                        
+                        <h4>Response</h4>
+                        <div class="code-block">
+                            <code>
+{
+  "success": true,
+  "message": "Payment verified successfully",
+  "status": "captured"
+}
+                            </code>
+                        </div>
+                        
+                        <h4>Flask Implementation</h4>
+                        <div class="code-block">
+                            <code>
+import hmac
+import hashlib
+
+@app.route('/verify-payment', methods=['POST'])
+def verify_payment():
+    payment_id = request.json['payment_id']
+    order_id = request.json['order_id']
+    signature = request.json['signature']
+    
+    # Create signature
+    message = order_id + '|' + payment_id
+    secret = 'your_webhook_secret'
+    
+    generated_signature = hmac.new(
+        secret.encode(),
+        message.encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    if generated_signature == signature:
+        # Save to database
+        save_transaction(payment_id, order_id, 'success')
+        return jsonify({'success': True, 'message': 'Payment verified'})
+    else:
+        return jsonify({'success': False, 'message': 'Invalid signature'})
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Tab -->
+        <section id="database" class="tab-content">
+            <div class="container">
+                <h2>Database Schema & Operations</h2>
+                
+                <div class="schema-section">
+                    <h3>Transactions Table Schema</h3>
+                    <div class="schema-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>id</td>
+                                    <td>INTEGER PRIMARY KEY</td>
+                                    <td>Unique transaction ID</td>
+                                </tr>
+                                <tr>
+                                    <td>order_id</td>
+                                    <td>VARCHAR(255)</td>
+                                    <td>Razorpay order ID</td>
+                                </tr>
+                                <tr>
+                                    <td>payment_id</td>
+                                    <td>VARCHAR(255)</td>
+                                    <td>Razorpay payment ID</td>
+                                </tr>
+                                <tr>
+                                    <td>amount</td>
+                                    <td>INTEGER</td>
+                                    <td>Amount in smallest currency unit</td>
+                                </tr>
+                                <tr>
+                                    <td>currency</td>
+                                    <td>VARCHAR(10)</td>
+                                    <td>Currency code (INR, USD, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td>status</td>
+                                    <td>VARCHAR(50)</td>
+                                    <td>Payment status (pending, success, failed)</td>
+                                </tr>
+                                <tr>
+                                    <td>payment_method</td>
+                                    <td>VARCHAR(100)</td>
+                                    <td>Payment method used</td>
+                                </tr>
+                                <tr>
+                                    <td>created_at</td>
+                                    <td>TIMESTAMP</td>
+                                    <td>Transaction creation time</td>
+                                </tr>
+                                <tr>
+                                    <td>updated_at</td>
+                                    <td>TIMESTAMP</td>
+                                    <td>Last update time</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="db-operations">
+                    <h3>Database Operations</h3>
+                    <div class="code-block">
+                        <code>
+import sqlite3
+from datetime import datetime
+
+def save_transaction(payment_id, order_id, status, amount=None):
+    conn = sqlite3.connect('payments.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        INSERT INTO transactions 
+        (payment_id, order_id, amount, currency, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (payment_id, order_id, amount, 'INR', status, datetime.now()))
+    
+    conn.commit()
+    conn.close()
+    
+    return cursor.lastrowid
+
+# Create table
+def create_transactions_table():
+    conn = sqlite3.connect('payments.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id VARCHAR(255) NOT NULL,
+            payment_id VARCHAR(255),
+            amount INTEGER NOT NULL,
+            currency VARCHAR(10) DEFAULT 'INR',
+            status VARCHAR(50) NOT NULL,
+            payment_method VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.commit()
+    conn.close()
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Tab -->
+        <section id="security" class="tab-content">
+            <div class="container">
+                <h2>Security Features & Best Practices</h2>
+                
+                <div class="security-features">
+                    <div class="security-feature">
+                        <div class="feature-icon">🔐</div>
+                        <div class="feature-content">
+                            <h3>Signature Verification</h3>
+                            <p><strong>Importance:</strong> Critical - Prevents payment tampering</p>
+                            <p>HMAC SHA256 signature verification using webhook secret</p>
+                        </div>
+                    </div>
+
+                    <div class="security-feature">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-content">
+                            <h3>SSL/TLS Encryption</h3>
+                            <p><strong>Importance:</strong> Essential - Protects data in transit</p>
+                            <p>All communications encrypted using HTTPS</p>
+                        </div>
+                    </div>
+
+                    <div class="security-feature">
+                        <div class="feature-icon">🔑</div>
+                        <div class="feature-content">
+                            <h3>API Key Management</h3>
+                            <p><strong>Importance:</strong> Important - Prevents unauthorized access</p>
+                            <p>Separate test and live API keys with proper storage</p>
+                        </div>
+                    </div>
+
+                    <div class="security-feature">
+                        <div class="feature-icon">📡</div>
+                        <div class="feature-content">
+                            <h3>Webhook Validation</h3>
+                            <p><strong>Importance:</strong> Critical - Ensures authentic notifications</p>
+                            <p>Validates webhook requests from Razorpay servers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-implementation">
+                    <h3>Security Implementation Example</h3>
+                    <div class="code-block">
+                        <code>
+# Environment variables for API keys
+import os
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
+# Webhook signature verification
+def verify_webhook_signature(payload, signature):
+    expected_signature = hmac.new(
+        RAZORPAY_KEY_SECRET.encode('utf-8'),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(expected_signature, signature)
+
+# Rate limiting for API endpoints
+from flask_limiter import Limiter
+limiter = Limiter(app, key_func=get_remote_address)
+
+@app.route('/webhook', methods=['POST'])
+@limiter.limit("100 per minute")  
+def webhook_handler():
+    payload = request.get_data()
+    signature = request.headers.get('X-Razorpay-Signature')
+    
+    if not verify_webhook_signature(payload, signature):
+        return jsonify({'error': 'Invalid signature'}), 400
+    
+    # Process webhook safely
+    return jsonify({'status': 'success'})
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions Tab -->
+        <section id="transactions" class="tab-content">
+            <div class="container">
+                <h2>Transaction History</h2>
+                
+                <div class="transactions-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Order ID</th>
+                                <th>Payment ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-tbody">
+                            <tr>
+                                <td>txn_001</td>
+                                <td>order_EKwxwAgItmmXdp</td>
+                                <td>pay_EKwxwBgDtmmXdq</td>
+                                <td>₹5,000</td>
+                                <td><span class="status status--success">Success</span></td>
+                                <td>Card</td>
+                                <td>2025-08-23 10:30:00</td>
+                            </tr>
+                            <tr>
+                                <td>txn_002</td>
+                                <td>order_FLwxwAgItmmXer</td>
+                                <td>pay_FLwxwBgDtmmXes</td>
+                                <td>₹7,500</td>
+                                <td><span class="status status--warning">Pending</span></td>
+                                <td>UPI</td>
+                                <td>2025-08-23 09:15:00</td>
+                            </tr>
+                            <tr>
+                                <td>txn_003</td>
+                                <td>order_GMwxwAgItmmXft</td>
+                                <td>pay_GMwxwBgDtmmXgu</td>
+                                <td>₹3,000</td>
+                                <td><span class="status status--error">Failed</span></td>
+                                <td>NetBanking</td>
+                                <td>2025-08-23 08:45:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Payment Success Modal -->
+    <div class="modal hidden" id="payment-success-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Payment Successful! 🎉</h3>
+            </div>
+            <div class="modal-body">
+                <p>Your payment has been processed successfully.</p>
+                <div class="payment-details" id="payment-details"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
