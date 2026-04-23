@@ -32,7 +32,35 @@ async function createTransaction(transaction) {
     return result.rows[0];
 }
 
+async function getTransactionsByOrderId(orderId) {
+    const query = `
+        SELECT id, order_id, status, payment_method, attempt_count, created_at
+        FROM transactions
+        WHERE order_id = $1
+        ORDER BY created_at DESC
+    `;
+
+    const result = await pool.query(query, [orderId]);
+    return result.rows;
+}
+
+async function listTransactions(limit = 100) {
+    const query = `
+        SELECT t.id, t.order_id, t.status, t.payment_method, t.attempt_count, t.created_at,
+               o.amount, o.currency
+        FROM transactions t
+        JOIN orders o ON o.id = t.order_id
+        ORDER BY t.created_at DESC
+        LIMIT $1
+    `;
+
+    const result = await pool.query(query, [limit]);
+    return result.rows;
+}
+
 module.exports = {
     getNextAttemptCount,
-    createTransaction
+    createTransaction,
+    getTransactionsByOrderId,
+    listTransactions
 };

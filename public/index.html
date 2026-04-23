@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Payment Microservice Dashboard — manage orders, process payments, inspect transactions, and monitor system events.">
+    <title>Payment Microservice — Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+</head>
+<body>
+
+<div class="dashboard" id="dashboard">
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <div class="header-logo">P</div>
+            <div>
+                <div class="header-title">Payment Microservice</div>
+                <div class="header-subtitle">Operations Dashboard</div>
+            </div>
+        </div>
+        <div class="health-status" id="health-status">
+            <span class="health-dot" id="health-dot"></span>
+            <span id="health-text">Checking...</span>
+        </div>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value" id="stat-total-orders">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Paid</div>
+            <div class="stat-value success" id="stat-paid">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value warning" id="stat-pending">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Failed</div>
+            <div class="stat-value danger" id="stat-failed">—</div>
+        </div>
+    </div>
+
+    <!-- Action Cards Row -->
+    <div class="section-grid">
+
+        <!-- Create Order Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Create Order</span>
+                <span class="card-badge badge badge-info">POST /orders</span>
+            </div>
+            <div class="card-body">
+                <form id="create-order-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="order-amount">Amount (minor units)</label>
+                            <input class="form-input" type="number" id="order-amount" placeholder="e.g. 50000" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="order-currency">Currency</label>
+                            <select class="form-select" id="order-currency">
+                                <option value="INR">INR</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit" id="btn-create-order">Create Order</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Process Payment Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Process Payment</span>
+                <span class="card-badge badge badge-info">POST /payments/process</span>
+            </div>
+            <div class="card-body">
+                <form id="process-payment-form">
+                    <div class="form-group">
+                        <label class="form-label" for="payment-order-id">Order ID</label>
+                        <select class="form-select" id="payment-order-id">
+                            <option value="">Select an order...</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="payment-method">Payment Method</label>
+                            <select class="form-select" id="payment-method">
+                                <option value="upi">UPI</option>
+                                <option value="card">Card</option>
+                                <option value="netbanking">Netbanking</option>
+                                <option value="wallet">Wallet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="payment-outcome">Simulation</label>
+                            <select class="form-select" id="payment-outcome">
+                                <option value="success">Success</option>
+                                <option value="failure">Failure</option>
+                                <option value="timeout">Timeout</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit" id="btn-process-payment">Process Payment</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tabbed Data Section -->
+    <div class="card full-width" style="margin-bottom: var(--space-xl);">
+        <div class="tab-bar" id="main-tab-bar">
+            <button class="tab-btn active" data-tab="orders-tab">Orders</button>
+            <button class="tab-btn" data-tab="transactions-tab">Transactions</button>
+            <button class="tab-btn" data-tab="dlq-tab">Dead Letter Queue</button>
+            <button class="tab-btn" data-tab="logs-tab">Event Log</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-panel active" id="orders-tab">
+            <div class="card-header" style="border-bottom: none; padding-top: var(--space-sm);">
+                <span class="card-title" id="orders-count-label">Orders</span>
+                <div class="card-actions">
+                    <button class="btn btn-secondary btn-sm" id="btn-refresh-orders" title="Refresh">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">No orders yet</div></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div class="tab-panel" id="transactions-tab">
+            <div class="card-header" style="border-bottom: none; padding-top: var(--space-sm);">
+                <span class="card-title" id="transactions-count-label">Transactions</span>
+                <div class="card-actions">
+                    <button class="btn btn-secondary btn-sm" id="btn-refresh-transactions" title="Refresh">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Attempt</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-tbody">
+                        <tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">💳</div><div class="empty-state-text">No transactions yet</div></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DLQ Tab -->
+        <div class="tab-panel" id="dlq-tab">
+            <div class="card-header" style="border-bottom: none; padding-top: var(--space-sm);">
+                <span class="card-title" id="dlq-count-label">Dead Letter Queue</span>
+                <div class="card-actions">
+                    <button class="btn btn-secondary btn-sm" id="btn-refresh-dlq" title="Refresh">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="dlq-table">
+                    <thead>
+                        <tr>
+                            <th>Job ID</th>
+                            <th>Order ID</th>
+                            <th>Method</th>
+                            <th>Attempts</th>
+                            <th>Last Error</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dlq-tbody">
+                        <tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No dead-letter jobs</div></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Event Logs Tab -->
+        <div class="tab-panel" id="logs-tab">
+            <div class="card-header" style="border-bottom: none; padding-top: var(--space-sm);">
+                <span class="card-title" id="logs-count-label">Event Log</span>
+                <div class="card-actions">
+                    <button class="btn btn-secondary btn-sm" id="btn-refresh-logs" title="Refresh">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="log-viewer" id="log-viewer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">No events logged yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Modal Container -->
+<div id="modal-root"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

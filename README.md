@@ -462,4 +462,5 @@ This service is designed to answer common system design interview questions:
 
 - `.env` is intentionally gitignored to avoid leaking secrets.
 - Startup checks verify database and Redis connectivity before serving requests (when enabled).
-- The root-level `index.html`, `app.js`, and `style.css` files are a legacy frontend demo and are not part of the microservice.
+- The frontend dashboard (`index.html`, `app.js`, `style.css`) is served by Express at `/` and connects to the backend APIs to provide an operations UI for creating orders, processing payments, inspecting transactions, viewing DLQ jobs, and monitoring event logs.
+

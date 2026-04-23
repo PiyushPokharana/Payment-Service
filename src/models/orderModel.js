@@ -36,8 +36,21 @@ async function updateOrderStatus(orderId, status) {
     return result.rows[0] || null;
 }
 
+async function listOrders(limit = 100) {
+    const query = `
+        SELECT id, amount, currency, status, created_at
+        FROM orders
+        ORDER BY created_at DESC
+        LIMIT $1
+    `;
+
+    const result = await pool.query(query, [limit]);
+    return result.rows;
+}
+
 module.exports = {
     createOrder,
     getOrderById,
-    updateOrderStatus
+    updateOrderStatus,
+    listOrders
 };

@@ -27,6 +27,32 @@ async function insertPaymentLog(entry, client = pool) {
     return result.rows[0];
 }
 
+async function getLogsByOrderId(orderId) {
+    const query = `
+        SELECT id, order_id, transaction_id, event_type, status, timestamp, metadata
+        FROM payment_logs
+        WHERE order_id = $1
+        ORDER BY timestamp DESC
+    `;
+
+    const result = await pool.query(query, [orderId]);
+    return result.rows;
+}
+
+async function listLogs(limit = 200) {
+    const query = `
+        SELECT id, order_id, transaction_id, event_type, status, timestamp, metadata
+        FROM payment_logs
+        ORDER BY timestamp DESC
+        LIMIT $1
+    `;
+
+    const result = await pool.query(query, [limit]);
+    return result.rows;
+}
+
 module.exports = {
-    insertPaymentLog
+    insertPaymentLog,
+    getLogsByOrderId,
+    listLogs
 };
