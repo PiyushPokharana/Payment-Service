@@ -1,0 +1,12 @@
+process.env.NODE_ENV = "test";
+process.env.PORT = process.env.PORT || "3001";
+process.env.DATABASE_URL = process.env.DATABASE_URL || "postgres://localhost:5432/payment_service_test";
+process.env.REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+process.env.WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "test-webhook-secret";
+process.env.IDEMPOTENCY_KEY_TTL_SECONDS = process.env.IDEMPOTENCY_KEY_TTL_SECONDS || "86400";
+process.env.IDEMPOTENCY_IN_PROGRESS_WAIT_MS = process.env.IDEMPOTENCY_IN_PROGRESS_WAIT_MS || "200";
+process.env.PAYMENT_RETRY_QUEUE_NAME = process.env.PAYMENT_RETRY_QUEUE_NAME || "payment-retries";
+process.env.PAYMENT_DLQ_QUEUE_NAME = process.env.PAYMENT_DLQ_QUEUE_NAME || "payment-dead-letter";
+process.env.PAYMENT_RETRY_WORKER_CONCURRENCY = process.env.PAYMENT_RETRY_WORKER_CONCURRENCY || "2";
+process.env.PAYMENT_RETRY_MAX_ATTEMPTS = process.env.PAYMENT_RETRY_MAX_ATTEMPTS || "3";
+process.env.ENABLE_STARTUP_CONNECTION_CHECKS = process.env.ENABLE_STARTUP_CONNECTION_CHECKS || "false";

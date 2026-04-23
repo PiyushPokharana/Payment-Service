@@ -6,6 +6,7 @@ const env = require("../config/env");
 const { pool } = require("../config/database");
 const orderModel = require("../models/orderModel");
 const webhookEventModel = require("../models/webhookEventModel");
+const { recordPaymentLog } = require("./paymentLogService");
 
 const orderStatusValues = ["pending", "paid", "failed"];
 
@@ -117,6 +118,14 @@ async function processPaymentWebhook({ rawBody, signature }) {
             payload: null
         });
 
+        await recordPaymentLog({
+            eventType: "webhook_decision",
+            status: "rejected_signature",
+            metadata: {
+                reason: "Invalid or missing x-razorpay-signature"
+            }
+        });
+
         logger.warn(
             {
                 audit: "webhook_decision",
@@ -141,6 +150,14 @@ async function processPaymentWebhook({ rawBody, signature }) {
             reason: "Malformed JSON payload",
             signatureValid: true,
             payload: null
+        });
+
+        await recordPaymentLog({
+            eventType: "webhook_decision",
+            status: "rejected_payload",
+            metadata: {
+                reason: "Malformed JSON payload"
+            }
         });
 
         logger.warn(
@@ -179,6 +196,17 @@ async function processPaymentWebhook({ rawBody, signature }) {
             reason: "Payload validation failed",
             signatureValid: true,
             payload: parsedPayloadResult.payload
+        });
+
+        await recordPaymentLog({
+            eventType: "webhook_decision",
+            status: "rejected_payload",
+            metadata: {
+                eventId: normalizedPayload.eventId || null,
+                eventType: normalizedPayload.eventType || "unknown",
+                reason: "Payload validation failed",
+                errors: validationErrors
+            }
         });
 
         logger.warn(
@@ -235,6 +263,17 @@ async function processPaymentWebhook({ rawBody, signature }) {
                 payload: parsedPayloadResult.payload
             });
 
+            await recordPaymentLog({
+                orderId: normalized.orderId,
+                eventType: "webhook_decision",
+                status: "rejected_not_found",
+                metadata: {
+                    eventId: normalized.eventId,
+                    eventType: normalized.eventType,
+                    reason: "Order does not exist"
+                }
+            });
+
             logger.warn(
                 {
                     audit: "webhook_decision",
@@ -249,6 +288,20 @@ async function processPaymentWebhook({ rawBody, signature }) {
                 status: "order_not_found"
             };
         }
+
+        await recordPaymentLog(
+            {
+                orderId: normalized.orderId,
+                eventType: "webhook_decision",
+                status: "accepted",
+                metadata: {
+                    eventId: normalized.eventId,
+                    eventType: normalized.eventType,
+                    orderStatus: updatedOrder.status
+                }
+            },
+            client
+        );
 
         await client.query("COMMIT");
 
@@ -280,6 +333,17 @@ async function processPaymentWebhook({ rawBody, signature }) {
                 reason: "Duplicate webhook event id",
                 signatureValid: true,
                 payload: parsedPayloadResult.payload
+            });
+
+            await recordPaymentLog({
+                orderId: normalized.orderId,
+                eventType: "webhook_decision",
+                status: "rejected_duplicate",
+                metadata: {
+                    eventId: normalized.eventId,
+                    eventType: normalized.eventType,
+                    reason: "Duplicate webhook event id"
+                }
             });
 
             logger.warn(

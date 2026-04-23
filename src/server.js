@@ -6,6 +6,10 @@ const logger = require("./config/logger");
 const { verifyPostgresConnection, pool } = require("./config/database");
 const { verifyRedisConnection, redisClient } = require("./config/redis");
 const { startPaymentRetryWorker, stopPaymentRetryWorker } = require("./queues/paymentRetryWorker");
+const { closePaymentRetryQueue } = require("./queues/paymentRetryQueue");
+const { closePaymentDlqQueue } = require("./queues/paymentDlqQueue");
+const { startPaymentAuditConsumer, stopPaymentAuditConsumer } = require("./consumers/paymentAuditConsumer");
+const { shutdownPaymentEventBus } = require("./services/paymentEventBusService");
 
 async function startServer() {
     try {
@@ -18,6 +22,7 @@ async function startServer() {
 
         // Start the payment retry worker
         await startPaymentRetryWorker();
+        await startPaymentAuditConsumer();
 
         const server = app.listen(env.PORT, () => {
             logger.info(`Payment service listening on port ${env.PORT}`);
@@ -28,7 +33,11 @@ async function startServer() {
             server.close(async () => {
                 // Stop the retry worker gracefully
                 await stopPaymentRetryWorker();
-                
+                await stopPaymentAuditConsumer();
+                await shutdownPaymentEventBus();
+                await closePaymentRetryQueue();
+                await closePaymentDlqQueue();
+
                 await pool.end();
                 redisClient.disconnect();
                 logger.info("Shutdown complete");

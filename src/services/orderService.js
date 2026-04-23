@@ -2,6 +2,7 @@ const { randomUUID } = require("crypto");
 const { z } = require("zod");
 const logger = require("../config/logger");
 const orderModel = require("../models/orderModel");
+const { recordPaymentLog } = require("./paymentLogService");
 
 const supportedCurrencies = new Set(["INR", "USD", "EUR"]);
 
@@ -38,6 +39,16 @@ async function createOrder(payload) {
     };
 
     const createdOrder = await orderModel.createOrder(orderToCreate);
+
+    await recordPaymentLog({
+        orderId: createdOrder.id,
+        eventType: "order_created",
+        status: createdOrder.status,
+        metadata: {
+            amount: createdOrder.amount,
+            currency: createdOrder.currency
+        }
+    });
 
     logger.info(
         {

@@ -210,16 +210,16 @@ Handle transient failures with controlled retries.
 Capture permanent failures without data loss.
 
 ### DLQ Implementation
-- [ ] Add dead-letter queue.
-- [ ] Route jobs to DLQ after retry exhaustion.
-- [ ] Store metadata for failed jobs (error, attempts, order_id).
+- [x] Add dead-letter queue.
+- [x] Route jobs to DLQ after retry exhaustion.
+- [x] Store metadata for failed jobs (error, attempts, order_id).
 
 ### Recovery Support
-- [ ] Add mechanism to inspect DLQ jobs.
-- [ ] Add optional reprocess command/endpoint for DLQ jobs.
+- [x] Add mechanism to inspect DLQ jobs.
+- [x] Add optional reprocess command/endpoint for DLQ jobs.
 
 ### Output Criteria
-- [ ] Permanent failures are retained and traceable.
+- [x] Permanent failures are retained and traceable.
 
 ---
 
@@ -229,21 +229,21 @@ Capture permanent failures without data loss.
 Make the system finance-grade and traceable.
 
 ### Database Work
-- [ ] Create `payment_logs` table with:
-  - [ ] `id`
-  - [ ] `order_id`
-  - [ ] `event_type`
-  - [ ] `status`
-  - [ ] `timestamp`
-- [ ] Add migration for `payment_logs`.
+- [x] Create `payment_logs` table with:
+  - [x] `id`
+  - [x] `order_id`
+  - [x] `event_type`
+  - [x] `status`
+  - [x] `timestamp`
+- [x] Add migration for `payment_logs`.
 
 ### Logging Strategy
-- [ ] Record key lifecycle events.
-- [ ] Ensure logs are immutable/audit-friendly.
-- [ ] Correlate logs with order and transaction IDs.
+- [x] Record key lifecycle events.
+- [x] Ensure logs are immutable/audit-friendly.
+- [x] Correlate logs with order and transaction IDs.
 
 ### Output Criteria
-- [ ] End-to-end traceability for payment lifecycle.
+- [x] End-to-end traceability for payment lifecycle.
 
 ---
 
@@ -253,19 +253,19 @@ Make the system finance-grade and traceable.
 Introduce decoupled communication patterns.
 
 ### Event Publishing
-- [ ] Emit `payment_success` event.
-- [ ] Emit `payment_failed` event.
+- [x] Emit `payment_success` event.
+- [x] Emit `payment_failed` event.
 
 ### Event Transport
-- [ ] Implement simple Redis pub-sub or Kafka integration.
-- [ ] Define event schema/versioning.
+- [x] Implement simple Redis pub-sub or Kafka integration.
+- [x] Define event schema/versioning.
 
 ### Event Consumers
-- [ ] Add at least one consumer module (e.g., notifications/audit).
-- [ ] Ensure consumer idempotency and error handling.
+- [x] Add at least one consumer module (e.g., notifications/audit).
+- [x] Ensure consumer idempotency and error handling.
 
 ### Output Criteria
-- [ ] Payment system demonstrates decoupled architecture.
+- [x] Payment system demonstrates decoupled architecture.
 
 ---
 
@@ -275,22 +275,22 @@ Introduce decoupled communication patterns.
 Prove correctness and reliability.
 
 ### Unit Testing
-- [ ] Add tests for services (orders, payments, webhook, retries).
-- [ ] Add tests for utility functions (HMAC, idempotency helpers).
+- [x] Add tests for services (orders, payments, webhook, retries).
+- [x] Add tests for utility functions (HMAC, idempotency helpers).
 
 ### API Testing
-- [ ] Add integration/API tests with Jest + Supertest.
-- [ ] Cover happy path and failure path for key endpoints.
+- [x] Add integration/API tests with Jest + Supertest.
+- [x] Cover happy path and failure path for key endpoints.
 
 ### Critical Test Scenarios
-- [ ] Duplicate webhook event rejected.
-- [ ] Invalid signature rejected.
-- [ ] Idempotent request returns same response.
-- [ ] Retry logic follows configured backoff and limits.
+- [x] Duplicate webhook event rejected.
+- [x] Invalid signature rejected.
+- [x] Idempotent request returns same response.
+- [x] Retry logic follows configured backoff and limits.
 
 ### Output Criteria
-- [ ] Tests pass consistently.
-- [ ] Core risk areas are covered.
+- [x] Tests pass consistently.
+- [x] Core risk areas are covered.
 
 ---
 
@@ -305,9 +305,9 @@ Deploy a production-like runnable service.
 - [ ] Deploy Redis to Upstash or equivalent.
 
 ### Packaging and Configuration
-- [ ] Add `Dockerfile`.
-- [ ] Add `.env.example` with all required keys.
-- [ ] Configure startup command and health checks.
+- [x] Add `Dockerfile`.
+- [x] Add `.env.example` with all required keys.
+- [x] Configure startup command and health checks.
 - [ ] Configure environment variables in deployment platform.
 
 ### Verification
@@ -322,22 +322,22 @@ Deploy a production-like runnable service.
 Turn implementation into an interview-ready showcase.
 
 ### Must Include in README
-- [ ] Payment flow diagram.
-- [ ] Idempotency explanation.
-- [ ] Webhook security approach.
-- [ ] Failure handling strategy.
-- [ ] Retry mechanism details.
+- [x] Payment flow diagram.
+- [x] Idempotency explanation.
+- [x] Webhook security approach.
+- [x] Failure handling strategy.
+- [x] Retry mechanism details.
 
 ### Recommended README Sections
-- [ ] Project overview and architecture.
-- [ ] API endpoints with sample requests/responses.
-- [ ] Local setup steps.
-- [ ] Environment variable reference.
-- [ ] Deployment links and instructions.
-- [ ] Test instructions.
+- [x] Project overview and architecture.
+- [x] API endpoints with sample requests/responses.
+- [x] Local setup steps.
+- [x] Environment variable reference.
+- [x] Deployment links and instructions.
+- [x] Test instructions.
 
 ### Output Criteria
-- [ ] README clearly communicates engineering depth and design decisions.
+- [x] README clearly communicates engineering depth and design decisions.
 
 ---
 

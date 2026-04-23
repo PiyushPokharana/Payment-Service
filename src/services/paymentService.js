@@ -3,6 +3,8 @@ const { z } = require("zod");
 const logger = require("../config/logger");
 const orderModel = require("../models/orderModel");
 const transactionModel = require("../models/transactionModel");
+const { recordPaymentLog, safeRecordPaymentLog } = require("./paymentLogService");
+const { paymentEventTypes, publishPaymentEvent } = require("./paymentEventBusService");
 
 const supportedPaymentMethods = new Set([
     "card",
@@ -86,6 +88,17 @@ async function processPayment(payload, options = {}) {
         payload.payment_method
     );
 
+    await recordPaymentLog({
+        orderId: payload.order_id,
+        eventType: "payment_attempt_started",
+        status: "in_progress",
+        metadata: {
+            paymentMethod: payload.payment_method,
+            attemptCount,
+            simulationOutcome: outcome
+        }
+    });
+
     const createdTransaction = await transactionModel.createTransaction({
         id: randomUUID(),
         orderId: payload.order_id,
@@ -98,6 +111,19 @@ async function processPayment(payload, options = {}) {
         payload.order_id,
         statusMapping.orderStatus
     );
+
+    await recordPaymentLog({
+        orderId: payload.order_id,
+        transactionId: createdTransaction.id,
+        eventType: "payment_attempt_completed",
+        status: createdTransaction.status,
+        metadata: {
+            paymentMethod: payload.payment_method,
+            attemptCount,
+            simulationOutcome: outcome,
+            orderStatus: updatedOrder.status
+        }
+    });
 
     logger.info(
         {
@@ -112,15 +138,45 @@ async function processPayment(payload, options = {}) {
         "Payment processing simulation completed"
     );
 
+    if (createdTransaction.status === "success") {
+        await publishPaymentEvent(
+            paymentEventTypes.SUCCESS,
+            {
+                orderId: payload.order_id,
+                transactionId: createdTransaction.id,
+                paymentMethod: payload.payment_method,
+                attemptCount,
+                simulationOutcome: outcome,
+                orderStatus: updatedOrder.status,
+                transactionStatus: createdTransaction.status
+            },
+            "payment-service"
+        );
+    }
+
     // Enqueue retry if outcome is failure/timeout and shouldEnqueueRetry is true
+    let queuedRetryJob = null;
+
     if (shouldEnqueueRetry && (outcome === "failure" || outcome === "timeout")) {
         try {
             const { enqueuePaymentRetry } = require("./paymentRetryService");
-            await enqueuePaymentRetry(
+            queuedRetryJob = await enqueuePaymentRetry(
                 payload.order_id,
                 payload.payment_method,
                 outcome
             );
+
+            await safeRecordPaymentLog({
+                orderId: payload.order_id,
+                transactionId: createdTransaction.id,
+                eventType: "payment_retry_enqueued",
+                status: "queued",
+                metadata: {
+                    paymentMethod: payload.payment_method,
+                    simulationOutcome: outcome,
+                    retryJobId: queuedRetryJob.id
+                }
+            });
         } catch (error) {
             logger.error(
                 {
@@ -137,7 +193,7 @@ async function processPayment(payload, options = {}) {
         simulation_outcome: outcome,
         transaction: createdTransaction,
         order: updatedOrder,
-        queued_for_retry: shouldEnqueueRetry && (outcome === "failure" || outcome === "timeout")
+        queued_for_retry: Boolean(queuedRetryJob)
     };
 }
 

@@ -9,6 +9,7 @@ const envSchema = z.object({
     IDEMPOTENCY_KEY_TTL_SECONDS: z.coerce.number().int().positive().default(86400),
     IDEMPOTENCY_IN_PROGRESS_WAIT_MS: z.coerce.number().int().positive().default(5000),
     PAYMENT_RETRY_QUEUE_NAME: z.string().min(1).default("payment-retries"),
+    PAYMENT_DLQ_QUEUE_NAME: z.string().min(1).default("payment-dead-letter"),
     PAYMENT_RETRY_WORKER_CONCURRENCY: z.coerce.number().int().positive().default(2),
     PAYMENT_RETRY_MAX_ATTEMPTS: z.coerce.number().int().positive().default(3),
     ENABLE_STARTUP_CONNECTION_CHECKS: z
