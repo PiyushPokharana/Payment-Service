@@ -59,37 +59,37 @@ Set up a real backend microservice.
 Simulate payment intent creation.
 
 ### API Contract
-- [ ] Implement `POST /orders`.
-- [ ] Request body supports:
-  - [ ] `amount` (e.g., `50000`).
-  - [ ] `currency` (e.g., `INR`).
-- [ ] Add request validation:
-  - [ ] Amount is positive integer.
-  - [ ] Currency is valid ISO code (or project-defined list).
+- [x] Implement `POST /orders`.
+- [x] Request body supports:
+  - [x] `amount` (e.g., `50000`).
+  - [x] `currency` (e.g., `INR`).
+- [x] Add request validation:
+  - [x] Amount is positive integer.
+  - [x] Currency is valid ISO code (or project-defined list).
 
 ### Database Work
-- [ ] Create `orders` table with:
-  - [ ] `id` (uuid, primary key)
-  - [ ] `amount`
-  - [ ] `currency`
-  - [ ] `status` (`pending`, `paid`, `failed`)
-  - [ ] `created_at`
-- [ ] Add DB migration for `orders`.
+- [x] Create `orders` table with:
+  - [x] `id` (uuid, primary key)
+  - [x] `amount`
+  - [x] `currency`
+  - [x] `status` (`pending`, `paid`, `failed`)
+  - [x] `created_at`
+- [x] Add DB migration for `orders`.
 
 ### Business Logic
-- [ ] Generate UUID order IDs (no incremental IDs).
-- [ ] Set default order status to `pending`.
-- [ ] Save new order in DB.
+- [x] Generate UUID order IDs (no incremental IDs).
+- [x] Set default order status to `pending`.
+- [x] Save new order in DB.
 
 ### Response and Error Cases
-- [ ] Return clean success response with order details.
-- [ ] Return proper error responses for invalid payload.
-- [ ] Log order creation success and failures.
+- [x] Return clean success response with order details.
+- [x] Return proper error responses for invalid payload.
+- [x] Log order creation success and failures.
 
 ### Output Criteria
-- [ ] Order gets created.
-- [ ] Order persisted in DB.
-- [ ] API response format is clean and consistent.
+- [x] Order gets created.
+- [x] Order persisted in DB.
+- [x] API response format is clean and consistent.
 
 ---
 

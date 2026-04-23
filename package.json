@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "migrate": "node src/migrations/runMigrations.js",
     "test": "echo \"No tests configured yet\""
   },
   "keywords": [],
