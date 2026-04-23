@@ -12,6 +12,32 @@ async function createOrder(order) {
     return result.rows[0];
 }
 
+async function getOrderById(orderId) {
+    const query = `
+        SELECT id, amount, currency, status, created_at
+        FROM orders
+        WHERE id = $1
+        LIMIT 1
+    `;
+
+    const result = await pool.query(query, [orderId]);
+    return result.rows[0] || null;
+}
+
+async function updateOrderStatus(orderId, status) {
+    const query = `
+        UPDATE orders
+        SET status = $2
+        WHERE id = $1
+        RETURNING id, amount, currency, status, created_at
+    `;
+
+    const result = await pool.query(query, [orderId, status]);
+    return result.rows[0] || null;
+}
+
 module.exports = {
-    createOrder
+    createOrder,
+    getOrderById,
+    updateOrderStatus
 };

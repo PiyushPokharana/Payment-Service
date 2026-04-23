@@ -11,6 +11,7 @@ Backend payment microservice scaffold built with Node.js and Express.
 - Environment variable validation using Zod
 - Structured logging with Pino
 - Centralized request logging and error handling middleware
+- Idempotency protection for write endpoints using `Idempotency-Key`
 
 ## Project Structure
 
@@ -81,7 +82,28 @@ The `.env.example` file contains required variables:
 - `LOG_LEVEL`
 - `DATABASE_URL`
 - `REDIS_URL`
+- `WEBHOOK_SECRET`
+- `IDEMPOTENCY_KEY_TTL_SECONDS`
+- `IDEMPOTENCY_IN_PROGRESS_WAIT_MS`
 - `ENABLE_STARTUP_CONNECTION_CHECKS`
+
+## Webhook Endpoint
+
+- `POST /webhook/payment`
+- Expects `x-razorpay-signature` header (`sha256` HMAC over raw request body).
+- Signature failures are rejected.
+- Duplicate webhook `event_id`/`id` values are rejected.
+- Valid webhook updates the target order status and records an audit trail in `webhook_events`.
+
+## Idempotency
+
+- Protected endpoints require `Idempotency-Key` header:
+  - `POST /orders`
+  - `POST /payments/process`
+- Repeating the same key with the same request body returns the original stored response.
+- Reusing the same key with different request data returns a collision error.
+- In-flight duplicate requests are handled safely and return deterministic responses.
+- Idempotency records are stored in Redis with configurable expiry.
 
 ## Available Scripts
 

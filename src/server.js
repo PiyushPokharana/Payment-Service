@@ -5,6 +5,7 @@ const env = require("./config/env");
 const logger = require("./config/logger");
 const { verifyPostgresConnection, pool } = require("./config/database");
 const { verifyRedisConnection, redisClient } = require("./config/redis");
+const { startPaymentRetryWorker, stopPaymentRetryWorker } = require("./queues/paymentRetryWorker");
 
 async function startServer() {
     try {
@@ -15,6 +16,9 @@ async function startServer() {
             logger.warn("Startup DB/Redis checks are disabled");
         }
 
+        // Start the payment retry worker
+        await startPaymentRetryWorker();
+
         const server = app.listen(env.PORT, () => {
             logger.info(`Payment service listening on port ${env.PORT}`);
         });
@@ -22,6 +26,9 @@ async function startServer() {
         const shutdown = async () => {
             logger.info("Shutting down server...");
             server.close(async () => {
+                // Stop the retry worker gracefully
+                await stopPaymentRetryWorker();
+                
                 await pool.end();
                 redisClient.disconnect();
                 logger.info("Shutdown complete");

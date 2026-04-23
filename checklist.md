@@ -99,31 +99,31 @@ Simulate payment intent creation.
 Simulate real-world payment processing outcomes.
 
 ### API
-- [ ] Implement `POST /payments/process`.
-- [ ] Accept required identifiers (e.g., `order_id`, `payment_method`).
+- [x] Implement `POST /payments/process`.
+- [x] Accept required identifiers (e.g., `order_id`, `payment_method`).
 
 ### Database Work
-- [ ] Create `transactions` table with:
-  - [ ] `id`
-  - [ ] `order_id` (FK)
-  - [ ] `status`
-  - [ ] `payment_method`
-  - [ ] `attempt_count`
-  - [ ] `created_at`
-- [ ] Add FK constraint from `transactions.order_id` to `orders.id`.
-- [ ] Add migration for `transactions`.
+- [x] Create `transactions` table with:
+  - [x] `id`
+  - [x] `order_id` (FK)
+  - [x] `status`
+  - [x] `payment_method`
+  - [x] `attempt_count`
+  - [x] `created_at`
+- [x] Add FK constraint from `transactions.order_id` to `orders.id`.
+- [x] Add migration for `transactions`.
 
 ### Processing Logic
-- [ ] Simulate success flow.
-- [ ] Simulate failure flow.
-- [ ] Simulate timeout flow.
-- [ ] Link transaction to order.
-- [ ] Update order status based on result.
-- [ ] Increment attempt count for retries/reattempts.
+- [x] Simulate success flow.
+- [x] Simulate failure flow.
+- [x] Simulate timeout flow.
+- [x] Link transaction to order.
+- [x] Update order status based on result.
+- [x] Increment attempt count for retries/reattempts.
 
 ### Output Criteria
-- [ ] Payment attempts recorded against orders.
-- [ ] Order and transaction statuses are updated correctly.
+- [x] Payment attempts recorded against orders.
+- [x] Order and transaction statuses are updated correctly.
 
 ---
 
@@ -133,24 +133,24 @@ Simulate real-world payment processing outcomes.
 Implement secure, interview-grade webhook handling.
 
 ### Endpoint
-- [ ] Implement `POST /webhook/payment`.
+- [x] Implement `POST /webhook/payment`.
 
 ### Security and Correctness
-- [ ] Verify HMAC signature for incoming webhook payload.
-- [ ] Reject payload if signature validation fails.
-- [ ] Add replay attack prevention:
-  - [ ] Store webhook event ID.
-  - [ ] Reject duplicate webhook event IDs.
-- [ ] Ensure idempotent webhook processing:
-  - [ ] Same event does not cause repeated updates.
+- [x] Verify HMAC signature for incoming webhook payload.
+- [x] Reject payload if signature validation fails.
+- [x] Add replay attack prevention:
+  - [x] Store webhook event ID.
+  - [x] Reject duplicate webhook event IDs.
+- [x] Ensure idempotent webhook processing:
+  - [x] Same event does not cause repeated updates.
 
 ### Operational Work
-- [ ] Add webhook processing logs.
-- [ ] Add audit trace for webhook decisions (accepted/rejected).
+- [x] Add webhook processing logs.
+- [x] Add audit trace for webhook decisions (accepted/rejected).
 
 ### Output Criteria
-- [ ] Webhook endpoint is secure.
-- [ ] Duplicate and tampered requests are blocked.
+- [x] Webhook endpoint is secure.
+- [x] Duplicate and tampered requests are blocked.
 
 ---
 
@@ -160,20 +160,20 @@ Implement secure, interview-grade webhook handling.
 Prevent duplicate payment operations.
 
 ### Request Handling
-- [ ] Support `Idempotency-Key` request header.
-- [ ] Validate header presence for protected endpoints.
+- [x] Support `Idempotency-Key` request header.
+- [x] Validate header presence for protected endpoints.
 
 ### Storage and Lookup
-- [ ] Store idempotency key in Redis or DB with response snapshot.
-- [ ] On repeated key, return previously stored response.
-- [ ] Add expiry policy for key records.
+- [x] Store idempotency key in Redis or DB with response snapshot.
+- [x] On repeated key, return previously stored response.
+- [x] Add expiry policy for key records.
 
 ### Edge Cases
-- [ ] Handle in-progress duplicate requests safely.
-- [ ] Handle key collisions and malformed values.
+- [x] Handle in-progress duplicate requests safely.
+- [x] Handle key collisions and malformed values.
 
 ### Output Criteria
-- [ ] Duplicate requests with same key are safe and deterministic.
+- [x] Duplicate requests with same key are safe and deterministic.
 
 ---
 
@@ -183,24 +183,24 @@ Prevent duplicate payment operations.
 Handle transient failures with controlled retries.
 
 ### Queue Setup
-- [ ] Integrate BullMQ.
-- [ ] Configure queue + worker + connection settings.
+- [x] Integrate BullMQ.
+- [x] Configure queue + worker + connection settings.
 
 ### Retry Logic
-- [ ] Push failed payments to retry queue.
-- [ ] Implement exponential backoff:
-  - [ ] 1 second
-  - [ ] 5 seconds
-  - [ ] 15 seconds
-- [ ] Set max retry count.
-- [ ] Mark final state after retries exhausted.
+- [x] Push failed payments to retry queue.
+- [x] Implement exponential backoff:
+  - [x] 1 second
+  - [x] 5 seconds
+  - [x] 15 seconds
+- [x] Set max retry count.
+- [x] Mark final state after retries exhausted.
 
 ### Observability
-- [ ] Log each retry attempt.
-- [ ] Log final failure reason after max retries.
+- [x] Log each retry attempt.
+- [x] Log final failure reason after max retries.
 
 ### Output Criteria
-- [ ] Failure handling is resilient and production-oriented.
+- [x] Failure handling is resilient and production-oriented.
 
 ---
 
